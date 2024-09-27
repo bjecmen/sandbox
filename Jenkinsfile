@@ -1,26 +1,30 @@
 pipeline {
     agent any
+    parameters{
+        booleanParam(name: 'IsHotfix', defaultValue: false, description: 'Zaškrtněte, je-li release HotFix')
+    }
 
     stages {
+        stage('Compile') {
+            steps {
+                echo 'Kopirovani kodu na HERAS'
+                echo 'Oveřovací kompilace'
+            }
+        }
         stage('Validate') {
             steps {
-                echo 'Validating..'
+                echo 'Validace kompilace'
             }
         }
         stage('Build') {
             steps {
-                echo 'Building..'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-//		sh 'exit 1'
+                echo 'Kopírování do jednoho ze tří adresářů'
+                echo 'Rekompilace pro cílovou DB'
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+                echo 'Překlopení'
             }
         }
     }
