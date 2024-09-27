@@ -25,6 +25,19 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Překlopení'
+                
+            }
+        }
+        stage('HotFix') {
+            when {
+                    expression {
+                        return ${params.IsHotfix}
+                    }
+                    
+                }
+            steps {
+                echo 'HotFix identifikován'
+                echo 'Kopírování do Hotfix'
             }
         }
     }
