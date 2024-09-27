@@ -31,7 +31,7 @@ pipeline {
         stage('HotFix') {
             when {
                     expression {
-                        return ${params.IsHotfix}
+                        return params.IsHotfix
                     }
                     
                 }
