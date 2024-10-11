@@ -6,9 +6,10 @@ pipeline {
 
      environment {
         REMOTE_USER = 'git'                      // Uživatelské jméno na vzdáleném serveru
-        REMOTE_HOST = '172.17.0.2'            // IP adresa nebo hostname vzdáleného serveru
+        REMOTE_HOST = 'localhost'            // IP adresa nebo hostname vzdáleného serveru
         REMOTE_SCRIPT_PATH = '/usr/local/bin/log-ip.sh' // Cesta ke skriptu na vzdáleném serveru
         SSH_KEY_PATH = '/Users/bjecmen/.ssh/id_rsa'  // Cesta k privátnímu SSH klíči Jenkins agenta (může být jiná)
+        SSH_PORT = '2222'
     }
 
     stages {
@@ -24,7 +25,7 @@ pipeline {
                  script {
                     // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH
                     sh """
-                    ssh -i ${SSH_KEY_PATH} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH}'
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH}'
                     """
                 }
             }
