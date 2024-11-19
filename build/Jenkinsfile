@@ -9,7 +9,7 @@ pipeline {
         REMOTE_FOLDER = '~/aplikace/srhv2test/'
         REMOTE_USER = 'git'                      // Uživatelské jméno na vzdáleném serveru
         REMOTE_HOST = 'localhost'            // IP adresa nebo hostname vzdáleného serveru
-        REMOTE_SCRIPT_PATH = '/usr/local/bin' // Cesta ke skriptu na vzdáleném serveru
+        REMOTE_SCRIPT_PATH = '~' // Cesta ke skriptu na vzdáleném serveru
         REMOTE_SCRIPT_PATH_COMPILE = '~/scripts/overovaci_kompilace.sh'  // 
         REMOTE_SCRIPT_PATH_VALIDATE = '~/scripts/validace_kompilace.sh'  // 
         REMOTE_SCRIPT_PATH_COPY = '~/scripts/kopirovani.sh'  // 
