@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+    parameters{
+        booleanParam(name: 'IsHotfix', defaultValue: false, description: 'Zaškrtněte, je-li release HotFix')
+    }
+
+     environment {
+        RELEASE_FILES = './release/*'
+        REMOTE_FOLDER = '~/aplikace/srhv2test/'
+        REMOTE_USER = 'git'                      // Uživatelské jméno na vzdáleném serveru
+        REMOTE_HOST = 'localhost'            // IP adresa nebo hostname vzdáleného serveru
+        REMOTE_SCRIPT_PATH = '/usr/local/bin' // Cesta ke skriptu na vzdáleném serveru
+        REMOTE_SCRIPT_PATH_COMPILE = '~/scripts/overovaci_kompilace.sh'  // 
+        REMOTE_SCRIPT_PATH_VALIDATE = '~/scripts/validace_kompilace.sh'  // 
+        REMOTE_SCRIPT_PATH_COPY = '~/scripts/kopirovani.sh'  // 
+        REMOTE_SCRIPT_PATH_RECOMPILE = '~/scripts/rekompilace.sh'  // 
+        SSH_PORT = '2222'
+    }
+
+    stages {
+        stage('Compile') {
+            steps {
+                echo 'Kopirovani kodu na HERAS'
+                script {
+                    sh """
+                    scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${RELEASE_FILES} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
+                    """
+                }
+                
+                echo 'Oveřovací kompilace'
+                script {
+                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_COMPILE}'
+                    """
+                }
+            }
+        }
+        stage('Validate') {
+            steps {
+                echo 'Validace kompilace'
+                 script {
+                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_VALIDATE}'
+                    """
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Kopírování do jednoho ze tří adresářů'
+                 script {
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_COPY}'
+                    """
+                }
+                echo 'Rekompilace pro cílovou DB'
+                 script {
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_RECOMPILE}'
+                    """
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Překlopení'
+                
+            }
+        }
+        stage('HotFix') {
+            when {
+                    expression {
+                        return params.Hotfix
+                    }
+                    
+                }
+            steps {
+                echo 'HotFix identifikován'
+                echo 'Kopírování do Hotfix'
+                script {
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_COPY}'
+                    """
+                }
+            }
+        }
+    }
+}
