@@ -15,6 +15,7 @@ pipeline {
         REMOTE_SCRIPT_PATH_COPY = '~/scripts/kopirovani.sh'  // 
         REMOTE_SCRIPT_PATH_RECOMPILE = '~/scripts/rekompilace.sh'  // 
         SSH_PORT = '2222'
+        SSH_KEY_PATH = '~/.ssh/id_rsa'
     }
 
     stages {
