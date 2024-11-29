@@ -30,7 +30,7 @@ pipeline {
                             echo filePath
 
                             sh """
-                            scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${env.WORKSPACE}/${filePath} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
+                            scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${env.WORKSPACE}/releases/${filePath} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
                             """
 
                         }}  
@@ -106,5 +106,21 @@ pipeline {
                     to: "jecmenb@gmail.com")
             }
         }
+        post {
+        always {
+            emailext (
+                    subject: "JENKINS COMPLETED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """<p>COMPLETED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p><p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+                    from: 'bjecmen@behaimits.com',
+                    to: "jecmenb@gmail.com")
+        }
+        failure {
+            emailext (
+                    subject: "JENKINS FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p><p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+                    from: 'bjecmen@behaimits.com',
+                    to: "jecmenb@gmail.com")
+        }
+    }
     }
 }
