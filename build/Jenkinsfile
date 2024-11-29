@@ -23,11 +23,8 @@ pipeline {
             steps {
                 echo 'Kopirovani kodu na HERAS'
                 script {
-                    sh """
-                    pwd
-                    """
-                    echo env.WORKSPACE
-                    def filePaths = readFile('../releases/release.txt').split("\n")  
+                
+                    def filePaths = readFile(env.WORKSPACE+'/releases/release.txt').split("\n")  
                     filePaths.each { filePath ->
                         if(filePath?.trim()){
                             echo filePath
