@@ -27,9 +27,10 @@ pipeline {
                     def filePaths = readFile(env.WORKSPACE+'/releases/release.txt').split("\n")  
                     filePaths.each { filePath ->
                         if(filePath?.trim()){
-                            echo 'Uploading ' filePath
+                            echo filePath
+
                             sh """
-                            scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${RELEASE_FILES} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
+                            scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null filePath ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
                             """
 
                         }}  
