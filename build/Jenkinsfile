@@ -27,12 +27,14 @@ pipeline {
                     def filePaths = readFile(env.WORKSPACE+'/releases/release.txt').split("\n")  
                     filePaths.each { filePath ->
                         if(filePath?.trim()){
-                            echo filePath
+                            echo 'Uploading ' filePath
+                            sh """
+                            scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${RELEASE_FILES} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
+                            """
+
                         }}  
 
-                    sh """
-                    scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${RELEASE_FILES} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
-                    """
+                    
                 }
                 
                 echo 'Oveřovací kompilace'
