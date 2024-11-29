@@ -1,0 +1,18 @@
+#!/bin/bash
+
+export TERM=vt220
+#export NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+export NLS_LANG=AMERICAN_AMERICA.EE8ISO8859P2
+export  FORMS_ORDER_PKG_SPEC_BODY=1
+
+  echo "Kompilace formularu"
+  ITEMS=`ls $1.fmb`
+  for item in $ITEMS; do
+    echo "*********$item*******"
+    /ora/app/oracle/product/frmrpt/asinst_1/bin/frmcmp_batch.sh $item plsdes/uran@shv_test module_type=form  compile_all=yes debug=yes
+    chmod -f 777 $1.*
+   #cat $1.err
+   #rm -f $1.err
+    echo "*********************"
+  done
+

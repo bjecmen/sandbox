@@ -23,6 +23,12 @@ pipeline {
             steps {
                 echo 'Kopirovani kodu na HERAS'
                 script {
+                    def filePaths = readFile('../releases/release.txt').split("\n")  
+                    filePaths.each { filePath ->
+                        if(filePath?.trim()){
+                            echo filePath
+                        }}  
+
                     sh """
                     scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${RELEASE_FILES} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
                     """
@@ -30,10 +36,10 @@ pipeline {
                 
                 echo 'Oveřovací kompilace'
                 script {
-                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH
+                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH. Jedna se o skripty: fcomp. mcmp.sh a plcomp
                     sh """
                     ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_COMPILE}'
-                    """
+                    """ 
                 }
             }
         }
@@ -41,7 +47,7 @@ pipeline {
             steps {
                 echo 'Validace kompilace'
                  script {
-                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH
+                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH - zkontrolovat vytvoreni souboru s dnesnim datumem a casem kompilace (fmx, mmx, plx)
                     sh """
                     ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_VALIDATE}'
                     """
