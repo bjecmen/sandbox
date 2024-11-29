@@ -106,7 +106,9 @@ pipeline {
                     to: "jecmenb@gmail.com")
             }
         }
-        post {
+    }
+
+    post {
         always {
             emailext (
                     subject: "JENKINS COMPLETED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
@@ -121,6 +123,5 @@ pipeline {
                     from: 'bjecmen@behaimits.com',
                     to: "jecmenb@gmail.com")
         }
-    }
     }
 }
