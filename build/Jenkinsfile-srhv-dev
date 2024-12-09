@@ -6,8 +6,8 @@ pipeline {
 
         REMOTE_FOLDER = '~/upload/srhv2dev/'
         REMOTE_USER = 'git'                      // Uživatelské jméno na vzdáleném serveru
-        REMOTE_HOST = 'heras'            // IP adresa nebo hostname vzdáleného serveru
-        SSH_PORT = '22'
+        REMOTE_HOST = 'localhost'            // IP adresa nebo hostname vzdáleného serveru
+        SSH_PORT = '2222'
         SSH_KEY_PATH = '~/.ssh/id_rsa'
 
         REMOTE_SCRIPT_PATH_COMPILE = '~/scripts/kompilace.sh'  //
