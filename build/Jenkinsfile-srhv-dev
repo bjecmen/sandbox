@@ -20,7 +20,7 @@ pipeline {
                 echo 'Kopirovani kodu na HERAS'
                 script {
 
-                    def filePaths = readFile(env.WORKSPACE+${RELEASE_FILE}).split("\n")
+                    def filePaths = readFile(env.WORKSPACE+env.RELEASE_FILE).split("\n")
                     filePaths.each { filePath ->
                         if(filePath?.trim()){
                             echo filePath
