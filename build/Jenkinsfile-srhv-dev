@@ -1,0 +1,80 @@
+pipeline {
+    agent any
+
+     environment {
+        RELEASE_FILE = '/releases/release.txt'
+
+        REMOTE_FOLDER = '~/upload/srhv2dev/'
+        REMOTE_USER = 'git'                      // Uživatelské jméno na vzdáleném serveru
+        REMOTE_HOST = 'heras'            // IP adresa nebo hostname vzdáleného serveru
+        SSH_PORT = '22'
+        SSH_KEY_PATH = '~/.ssh/id_rsa'
+
+        REMOTE_SCRIPT_PATH_COMPILE = '~/scripts/kompilace.sh'  //
+        REMOTE_SCRIPT_PATH_VALIDATE = '~/scripts/validace.sh'  //
+    }
+
+    stages {
+        stage('Compile') {
+            steps {
+                echo 'Kopirovani kodu na HERAS'
+                script {
+
+                    def filePaths = readFile(env.WORKSPACE+${RELEASE_FILE}).split("\n")
+                    filePaths.each { filePath ->
+                        if(filePath?.trim()){
+                            echo filePath
+
+                            sh """
+                            scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${env.WORKSPACE}/${filePath} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FOLDER}
+                            """
+
+                        }
+                    }
+                }
+
+                echo 'Oveřovací kompilace'
+                script {
+                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH. Jedna se o skripty: fcomp. mcmp.sh a plcomp
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_COMPILE}'
+                    """
+                }
+            }
+        }
+        stage('Validate') {
+            steps {
+                echo 'Validace kompilace'
+                 script {
+                    // Příkaz k připojení a spuštění skriptu na vzdáleném serveru přes SSH - zkontrolovat vytvoreni souboru s dnesnim datumem a casem kompilace (fmx, mmx, plx)
+                    sh """
+                    ssh -i ${SSH_KEY_PATH} -p ${SSH_PORT} -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} 'bash ${REMOTE_SCRIPT_PATH_VALIDATE}'
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build proběhl úspěšně.'
+            /*
+            emailext (
+                    subject: "JENKINS COMPLETED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """<p>COMPLETED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p><p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+                    from: 'bjecmen@behaimits.com',
+                    to: "jecmenb@gmail.com")
+                    */
+        }
+        failure {
+            echo 'Build skončil neúspěšně s chybou.'
+            /*
+            emailext (
+                    subject: "JENKINS FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p><p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+                    from: 'bjecmen@behaimits.com',
+                    to: "jecmenb@gmail.com")
+                    */
+        }
+    }
+}
